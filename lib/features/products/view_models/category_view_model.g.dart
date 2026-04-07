@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'product_view_model.dart';
+part of 'category_view_model.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -8,17 +8,13 @@ part of 'product_view_model.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// 🔥 Dio
 
 @ProviderFor(dioClient)
 final dioClientProvider = DioClientProvider._();
 
-/// 🔥 Dio
-
 final class DioClientProvider
     extends $FunctionalProvider<DioClient, DioClient, DioClient>
     with $Provider<DioClient> {
-  /// 🔥 Dio
   DioClientProvider._()
     : super(
         from: null,
@@ -54,149 +50,133 @@ final class DioClientProvider
 
 String _$dioClientHash() => r'e6a9dcce6804aa95cb3ea31bbb6d28ca56890385';
 
-/// 🔥 API
+@ProviderFor(categoryApi)
+final categoryApiProvider = CategoryApiProvider._();
 
-@ProviderFor(productApi)
-final productApiProvider = ProductApiProvider._();
-
-/// 🔥 API
-
-final class ProductApiProvider
-    extends $FunctionalProvider<ProductApi, ProductApi, ProductApi>
-    with $Provider<ProductApi> {
-  /// 🔥 API
-  ProductApiProvider._()
+final class CategoryApiProvider
+    extends $FunctionalProvider<CategoryApi, CategoryApi, CategoryApi>
+    with $Provider<CategoryApi> {
+  CategoryApiProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'productApiProvider',
+        name: r'categoryApiProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$productApiHash();
+  String debugGetCreateSourceHash() => _$categoryApiHash();
 
   @$internal
   @override
-  $ProviderElement<ProductApi> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<CategoryApi> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  ProductApi create(Ref ref) {
-    return productApi(ref);
+  CategoryApi create(Ref ref) {
+    return categoryApi(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ProductApi value) {
+  Override overrideWithValue(CategoryApi value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<ProductApi>(value),
+      providerOverride: $SyncValueProvider<CategoryApi>(value),
     );
   }
 }
 
-String _$productApiHash() => r'65eea68078e3d0ea22c4db744f12963d3f559e87';
+String _$categoryApiHash() => r'd694d9eea3a002034eddb8f5ad43681132688032';
 
-/// 🔥 Repository
+@ProviderFor(categoryRepository)
+final categoryRepositoryProvider = CategoryRepositoryProvider._();
 
-@ProviderFor(productRepository)
-final productRepositoryProvider = ProductRepositoryProvider._();
-
-/// 🔥 Repository
-
-final class ProductRepositoryProvider
+final class CategoryRepositoryProvider
     extends
         $FunctionalProvider<
-          ProductRepository,
-          ProductRepository,
-          ProductRepository
+          CategoryRepository,
+          CategoryRepository,
+          CategoryRepository
         >
-    with $Provider<ProductRepository> {
-  /// 🔥 Repository
-  ProductRepositoryProvider._()
+    with $Provider<CategoryRepository> {
+  CategoryRepositoryProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'productRepositoryProvider',
+        name: r'categoryRepositoryProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$productRepositoryHash();
+  String debugGetCreateSourceHash() => _$categoryRepositoryHash();
 
   @$internal
   @override
-  $ProviderElement<ProductRepository> $createElement(
+  $ProviderElement<CategoryRepository> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  ProductRepository create(Ref ref) {
-    return productRepository(ref);
+  CategoryRepository create(Ref ref) {
+    return categoryRepository(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ProductRepository value) {
+  Override overrideWithValue(CategoryRepository value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<ProductRepository>(value),
+      providerOverride: $SyncValueProvider<CategoryRepository>(value),
     );
   }
 }
 
-String _$productRepositoryHash() => r'f32653ccd01a40c1db3d989fc480ca13afc3d90f';
+String _$categoryRepositoryHash() =>
+    r'59a23142d668447d4d014a57b7cd4f744190e3db';
 
-@ProviderFor(ProductViewModel)
-final productViewModelProvider = ProductViewModelProvider._();
+@ProviderFor(CategoryViewModel)
+final categoryViewModelProvider = CategoryViewModelProvider._();
 
-final class ProductViewModelProvider
-    extends $NotifierProvider<ProductViewModel, ProductState> {
-  ProductViewModelProvider._()
+final class CategoryViewModelProvider
+    extends $AsyncNotifierProvider<CategoryViewModel, List<CategoryModel>> {
+  CategoryViewModelProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'productViewModelProvider',
+        name: r'categoryViewModelProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$productViewModelHash();
+  String debugGetCreateSourceHash() => _$categoryViewModelHash();
 
   @$internal
   @override
-  ProductViewModel create() => ProductViewModel();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ProductState value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ProductState>(value),
-    );
-  }
+  CategoryViewModel create() => CategoryViewModel();
 }
 
-String _$productViewModelHash() => r'fd6e85726f4d1ce47761db8704b1ab51c3e743ae';
+String _$categoryViewModelHash() => r'76e97dfea017fc8d01a5a1e530a53a1fd8742a4b';
 
-abstract class _$ProductViewModel extends $Notifier<ProductState> {
-  ProductState build();
+abstract class _$CategoryViewModel extends $AsyncNotifier<List<CategoryModel>> {
+  FutureOr<List<CategoryModel>> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<ProductState, ProductState>;
+    final ref =
+        this.ref as $Ref<AsyncValue<List<CategoryModel>>, List<CategoryModel>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<ProductState, ProductState>,
-              ProductState,
+              AnyNotifier<AsyncValue<List<CategoryModel>>, List<CategoryModel>>,
+              AsyncValue<List<CategoryModel>>,
               Object?,
               Object?
             >;

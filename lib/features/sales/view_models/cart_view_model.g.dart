@@ -13,7 +13,7 @@ part of 'cart_view_model.dart';
 final cartViewModelProvider = CartViewModelProvider._();
 
 final class CartViewModelProvider
-    extends $NotifierProvider<CartViewModel, List<CartItem>> {
+    extends $NotifierProvider<CartViewModel, CartState> {
   CartViewModelProvider._()
     : super(
         from: null,
@@ -33,27 +33,27 @@ final class CartViewModelProvider
   CartViewModel create() => CartViewModel();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<CartItem> value) {
+  Override overrideWithValue(CartState value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<List<CartItem>>(value),
+      providerOverride: $SyncValueProvider<CartState>(value),
     );
   }
 }
 
-String _$cartViewModelHash() => r'e3701858bfc565b42b1165049737ce2590716c94';
+String _$cartViewModelHash() => r'd2b70da2df76a3abe817152e92b5a0f9bdc919eb';
 
-abstract class _$CartViewModel extends $Notifier<List<CartItem>> {
-  List<CartItem> build();
+abstract class _$CartViewModel extends $Notifier<CartState> {
+  CartState build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<List<CartItem>, List<CartItem>>;
+    final ref = this.ref as $Ref<CartState, CartState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<List<CartItem>, List<CartItem>>,
-              List<CartItem>,
+              AnyNotifier<CartState, CartState>,
+              CartState,
               Object?,
               Object?
             >;

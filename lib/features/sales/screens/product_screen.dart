@@ -1,16 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:new_alegria/features/products/models/category_model.dart';
 import 'package:new_alegria/features/products/models/product_model.dart';
+import 'package:new_alegria/features/products/view_models/category_view_model.dart';
 import 'package:new_alegria/features/products/view_models/product_state.dart';
 import 'package:new_alegria/features/products/view_models/product_view_model.dart';
+import 'package:new_alegria/features/sales/models/cart_item.dart';
+import 'package:new_alegria/features/sales/view_models/cart_view_model.dart';
+import 'package:new_alegria/features/sales/widgets/modifier_sheet.dart';
 
 class ProductScreen extends ConsumerWidget {
   const ProductScreen({super.key});
+
+  void onProductTap(BuildContext context, ProductModel product, WidgetRef ref) {
+    final cartVm = ref.read(cartViewModelProvider.notifier);
+
+    if (product.modifiers.isEmpty) {
+      cartVm.addItem(
+        CartItem(product: product, quantity: 1, selectedOptions: []),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return ModifierSheet(
+          product: product,
+          onConfirm: (selectedOptions, extraPrice) {
+            cartVm.addItem(
+              CartItem(
+                product: product,
+                quantity: 1,
+                selectedOptions: selectedOptions,
+
+                /// 👇 IMPORTANT (you likely need this)
+                extraPrice: extraPrice,
+              ),
+            );
+
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(productViewModelProvider);
     final vm = ref.read(productViewModelProvider.notifier);
+    final cartVm = ref.read(cartViewModelProvider.notifier);
+
+    final categoriesAsync = ref.watch(categoryViewModelProvider);
 
     return Column(
       children: [
@@ -18,9 +61,9 @@ class ProductScreen extends ConsumerWidget {
         _buildSearchBar(vm),
         Padding(
           padding: EdgeInsets.only(top: 30),
-          child: _buildCategoryChips(vm, state),
+          child: _buildCategoryChips(categoriesAsync, vm, state),
         ),
-        Expanded(child: _buildProductGrid(vm)),
+        Expanded(child: _buildProductGrid(vm, cartVm, ref)),
       ],
     );
   }
@@ -60,34 +103,62 @@ class ProductScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryChips(ProductViewModel vm, ProductState state) {
-    return SizedBox(
-      height: 50,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          final category = vm.categories[index];
-          final isSelected = category == state.selectedCategory;
+  Widget _buildCategoryChips(
+    AsyncValue<List<CategoryModel>> categoriesAsync,
+    ProductViewModel vm,
+    ProductState state,
+  ) {
+    return categoriesAsync.when(
+      data: (categories) {
+        final allCategories = [
+          CategoryModel(id: 0, name: 'All', description: ''),
+          ...categories,
+        ];
 
-          return ChoiceChip(
-            label: Text(category),
-            selected: isSelected,
-            selectedColor: Colors.orange.shade100,
-            labelStyle: TextStyle(
-              color: isSelected ? Colors.orange : Colors.black,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-            onSelected: (_) => vm.selectCategory(category),
-          );
-        },
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemCount: vm.categories.length,
+        return SizedBox(
+          height: 50,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            scrollDirection: Axis.horizontal,
+            itemCount: allCategories.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (_, index) {
+              final category = allCategories[index];
+
+              final isSelected = category.id == state.selectedCategoryId;
+
+              return ChoiceChip(
+                label: Text(category.name),
+                selected: isSelected,
+                selectedColor: Colors.orange.shade100,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.orange : Colors.black,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                onSelected: (_) => vm.selectCategory(category.id),
+              );
+            },
+          ),
+        );
+      },
+
+      loading: () => const SizedBox(
+        height: 50,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+
+      error: (e, _) => SizedBox(
+        height: 50,
+        child: Center(child: Text('Error loading categories')),
       ),
     );
   }
 
-  Widget _buildProductGrid(ProductViewModel vm) {
+  Widget _buildProductGrid(
+    ProductViewModel vm,
+    CartViewModel cartVm,
+    WidgetRef ref,
+  ) {
     final products = vm.filteredProducts;
 
     return GridView.builder(
@@ -102,16 +173,18 @@ class ProductScreen extends ConsumerWidget {
       itemBuilder: (context, index) {
         final product = products[index];
 
-        return _buildProductCard(product, vm);
+        return _buildProductCard(context, ref, product);
       },
     );
   }
 
-  Widget _buildProductCard(ProductModel product, ProductViewModel vm) {
+  Widget _buildProductCard(
+    BuildContext context,
+    WidgetRef ref,
+    ProductModel product,
+  ) {
     return GestureDetector(
-      onTap: () {
-        // next: add to cart
-      },
+      onTap: () => onProductTap(context, product, ref),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -121,22 +194,25 @@ class ProductScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(
-              Icons.local_cafe,
-              size: 40,
-            ), // 👈 better for coffee/bakery
+            const Icon(Icons.local_cafe, size: 40),
+
             Text(
               product.name,
               textAlign: TextAlign.center,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
+
             Text(
-              "₱${product.sellingPrice}",
+              "₱${product.sellingPrice.toStringAsFixed(2)}",
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.orange,
               ),
             ),
+
+            /// 🔥 Optional: show indicator if has modifiers
+            if (product.modifiers.isNotEmpty)
+              const Icon(Icons.tune, size: 16, color: Colors.grey),
           ],
         ),
       ),

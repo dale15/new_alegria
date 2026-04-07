@@ -1,60 +1,43 @@
+import 'package:new_alegria/core/network/dio_client.dart';
+import 'package:new_alegria/features/products/data/product_api.dart';
+import 'package:new_alegria/features/products/data/product_repository.dart';
 import 'package:new_alegria/features/products/models/product_model.dart';
 import 'package:new_alegria/features/products/view_models/product_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'product_view_model.g.dart';
 
+/// 🔥 Dio
+@riverpod
+DioClient dioClient(Ref ref) {
+  return DioClient();
+}
+
+/// 🔥 API
+@riverpod
+ProductApi productApi(Ref ref) {
+  return ProductApi(ref.watch(dioClientProvider));
+}
+
+/// 🔥 Repository
+@riverpod
+ProductRepository productRepository(Ref ref) {
+  return ProductRepository(ref.watch(productApiProvider));
+}
+
 @riverpod
 class ProductViewModel extends _$ProductViewModel {
   @override
   ProductState build() {
-    return ProductState(products: _mockProducts);
+    _loadProducts();
+    return const ProductState();
   }
 
-  final List<String> categories = ['All', 'Bread', 'Pastries', 'Drinks'];
+  Future<void> _loadProducts() async {
+    final products = await ref.read(productRepositoryProvider).getProducts();
 
-  final List<ProductModel> _mockProducts = [
-    ProductModel(
-      id: 1,
-      name: 'Pandesal',
-      sellingPrice: 5,
-      sku: '',
-      costPrice: 20,
-      categoryId: 1,
-      categoryName: 'Bread',
-      modifiers: [],
-    ),
-    ProductModel(
-      id: 2,
-      name: 'Ensaymada',
-      sellingPrice: 20,
-      sku: '',
-      costPrice: 15,
-      categoryId: 1,
-      categoryName: 'Bread',
-      modifiers: [],
-    ),
-    ProductModel(
-      id: 3,
-      name: 'Croissant',
-      sellingPrice: 45,
-      sku: '',
-      costPrice: 30,
-      categoryId: 1,
-      categoryName: 'Bread',
-      modifiers: [],
-    ),
-    ProductModel(
-      id: 4,
-      name: 'Coffee',
-      sellingPrice: 30,
-      sku: '',
-      costPrice: 11,
-      categoryId: 2,
-      categoryName: 'Drinks',
-      modifiers: [],
-    ),
-  ];
+    state = state.copyWith(products: products);
+  }
 
   // 📅 formatted date (presentation logic)
   String get formattedDate {
@@ -67,8 +50,8 @@ class ProductViewModel extends _$ProductViewModel {
   List<ProductModel> get filteredProducts {
     return state.products.where((product) {
       final matchesCategory =
-          state.selectedCategory == 'All' ||
-          product.categoryName == state.selectedCategory;
+          state.selectedCategoryId == 0 ||
+          product.categoryId == state.selectedCategoryId;
 
       final matchesSearch = product.name.toLowerCase().contains(
         state.searchQuery.toLowerCase(),
@@ -82,7 +65,8 @@ class ProductViewModel extends _$ProductViewModel {
     state = state.copyWith(searchQuery: value);
   }
 
-  void selectCategory(String category) {
-    state = state.copyWith(selectedCategory: category);
+  void selectCategory(int categoryId) {
+    if (state.selectedCategoryId == categoryId) return;
+    state = state.copyWith(selectedCategoryId: categoryId);
   }
 }

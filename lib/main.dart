@@ -14,7 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Alegria Bakeshop',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
       routerConfig: router,
     );
   }
