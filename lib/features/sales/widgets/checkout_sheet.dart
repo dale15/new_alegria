@@ -156,7 +156,7 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
               height: 52,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 241, 66, 45),
+                  backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -185,15 +185,10 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
 
   Future<void> _processOrder(BuildContext context, CartViewModel cartVm) async {
     try {
-      final result = await cartVm.createInvoice();
-
+      await cartVm.createInvoice();
       if (!context.mounted) return;
 
       Navigator.pop(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invoice: ${result['invoiceNumber']}")),
-      );
     } catch (e) {
       debugPrint("Order failed: $e");
 
@@ -231,6 +226,7 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
       ],
     );
   }
+  // Color.fromARGB(255, 241, 66, 45)
 
   Widget _buildPaymentButton(
     BuildContext context,
@@ -247,9 +243,7 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color.fromARGB(255, 241, 66, 45)
-              : Colors.grey.shade200,
+          color: isSelected ? Colors.orange : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [

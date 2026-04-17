@@ -22,11 +22,10 @@ class ProductScreen extends ConsumerWidget {
       return;
     }
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
       builder: (_) {
-        return ModifierSheet(
+        return ModifierDialog(
           product: product,
           onConfirm: (selectedOptions, extraPrice) {
             cartVm.addItem(
@@ -34,8 +33,6 @@ class ProductScreen extends ConsumerWidget {
                 product: product,
                 quantity: 1,
                 selectedOptions: selectedOptions,
-
-                /// 👇 IMPORTANT (you likely need this)
                 extraPrice: extraPrice,
               ),
             );

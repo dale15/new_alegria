@@ -75,7 +75,7 @@ class CartGridPanel extends ConsumerWidget {
             const Spacer(),
 
             TextButton.icon(
-              onPressed: cart.isEmpty ? null : cartVm.clear,
+              onPressed: cart.isEmpty ? null : cartVm.clearCart,
               icon: const Icon(Icons.delete_outline, size: 18),
               label: const Text('Clear'),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -94,7 +94,7 @@ class CartGridPanel extends ConsumerWidget {
               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
             ),
             Text(
-              '₱${cartState.total}',
+              '₱${cartState.subtotal}',
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,

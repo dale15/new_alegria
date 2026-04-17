@@ -1,123 +1,129 @@
 import 'package:flutter/material.dart';
 
-class ModifierSheet extends StatefulWidget {
+class ModifierDialog extends StatefulWidget {
   final dynamic product;
-  final Function(List<dynamic> selectedOptions, double extraPrice) onConfirm;
+  final Function(List<dynamic>, double) onConfirm;
 
-  const ModifierSheet({
+  const ModifierDialog({
     super.key,
     required this.product,
     required this.onConfirm,
   });
 
   @override
-  State<ModifierSheet> createState() => _ModifierSheetState();
+  State<ModifierDialog> createState() => _ModifierDialogState();
 }
 
-class _ModifierSheetState extends State<ModifierSheet> {
+class _ModifierDialogState extends State<ModifierDialog> {
   final Map<String, dynamic> _selectedOptions = {};
   double _extraPrice = 0;
 
   @override
   Widget build(BuildContext context) {
     final modifiers = widget.product.modifiers;
-
     final total = widget.product.sellingPrice + _extraPrice;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        /// Drag Handle
-        Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 10),
-          width: 40,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade400,
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-
-        /// Product Name
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              widget.product.name,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      constraints: BoxConstraints(maxWidth: 600),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// TITLE
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.product.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.close),
+                ),
+              ],
             ),
-          ),
-        ),
 
-        const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
-        /// Modifier List
-        SizedBox(
-          height: 250,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: modifiers
-                .map<Widget>((modifier) => _buildModifierSection(modifier))
-                .toList(),
-          ),
-        ),
+            /// MODIFIERS (GRID SECTIONS)
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 250),
+              child: ListView(
+                children: modifiers.map<Widget>((modifier) {
+                  return _buildModifierGrid(modifier);
+                }).toList(),
+              ),
+            ),
 
-        /// Bottom Confirm Bar
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
-            ],
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 241, 66, 45),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            const SizedBox(height: 12),
+
+            /// CONFIRM BUTTON
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  widget.onConfirm(
+                    _selectedOptions.values.toList(),
+                    _extraPrice,
+                  );
+                },
+                child: Text(
+                  "Add • ₱${total.toStringAsFixed(2)}",
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
-              onPressed: () {
-                widget.onConfirm(_selectedOptions.values.toList(), _extraPrice);
-              },
-              child: Text(
-                "Add to Cart • ₱${total.toStringAsFixed(2)}",
-                style: const TextStyle(fontSize: 16, color: Colors.white),
-              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildModifierSection(dynamic modifier) {
+  Widget _buildModifierGrid(dynamic modifier) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              modifier.name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 12),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            modifier.name,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
 
-            ...modifier.options.map<Widget>((option) {
+          const SizedBox(height: 8),
+
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: modifier.options.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3, // 👉 change to 3 for tablet
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 2.5,
+            ),
+            itemBuilder: (_, index) {
+              final option = modifier.options[index];
               final isSelected = _selectedOptions[modifier.id] == option;
 
-              return GestureDetector(
+              return InkWell(
+                borderRadius: BorderRadius.circular(10),
                 onTap: () {
                   setState(() {
                     _selectedOptions[modifier.id] = option;
@@ -128,37 +134,52 @@ class _ModifierSheetState extends State<ModifierSheet> {
                     }
                   });
                 },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.blue.shade50 : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    color: isSelected
+                        ? Colors.orange.withOpacity(0.1)
+                        : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isSelected ? Colors.green : Colors.grey.shade300,
+                      color: isSelected ? Colors.orange : Colors.grey.shade300,
                     ),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(option.name),
+                      Expanded(
+                        child: Text(
+                          option.name,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
 
                       if (option.priceAdjustment > 0)
                         Text(
-                          "+ ₱${option.priceAdjustment.toStringAsFixed(2)}",
-                          style: TextStyle(color: Colors.grey.shade600),
+                          "+₱${option.priceAdjustment.toStringAsFixed(0)}",
+                          style: const TextStyle(fontSize: 14),
                         ),
 
                       if (isSelected)
-                        const Icon(Icons.check_circle, color: Colors.green),
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.check,
+                            size: 14,
+                            color: Colors.orange,
+                          ),
+                        ),
                     ],
                   ),
                 ),
               );
-            }).toList(),
-          ],
-        ),
+            },
+          ),
+        ],
       ),
     );
   }
