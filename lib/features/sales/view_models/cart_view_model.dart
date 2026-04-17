@@ -1,6 +1,7 @@
 import 'package:new_alegria/features/sales/models/cart_item.dart';
 import 'package:new_alegria/features/sales/models/discount_model.dart';
 import 'package:new_alegria/features/sales/models/invoice_request_model.dart';
+import 'package:new_alegria/features/sales/models/selected_product_modifier.dart';
 import 'package:new_alegria/features/sales/providers/cart_provider.dart';
 import 'package:new_alegria/features/sales/view_models/cart_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -48,11 +49,12 @@ class CartViewModel extends _$CartViewModel {
     return ref.watch(discountRepositoryProvider).getDiscounts();
   }
 
-  bool _isSameOptions(List a, List b) {
+  bool _isSameOptions(List<SelectedModifier> a, List<SelectedModifier> b) {
     if (a.length != b.length) return false;
 
     for (int i = 0; i < a.length; i++) {
-      if (a[i].id != b[i].id) return false;
+      if (a[i].modifierName != b[i].modifierName) return false;
+      if (a[i].optionName != b[i].optionName) return false;
     }
 
     return true;
@@ -150,8 +152,8 @@ class CartViewModel extends _$CartViewModel {
           quantity: item.quantity,
           modifiers: item.selectedOptions.map((opt) {
             return InvoiceModifier(
-              modifierName: opt.modifierName ?? "",
-              optionName: opt.name,
+              modifierName: opt.modifierName,
+              optionName: opt.optionName,
               priceAdjustment: opt.priceAdjustment.toDouble(),
             );
           }).toList(),

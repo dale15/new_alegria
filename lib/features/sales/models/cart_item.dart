@@ -1,8 +1,9 @@
 import 'package:new_alegria/features/products/models/product_model.dart';
+import 'package:new_alegria/features/sales/models/selected_product_modifier.dart';
 
 class CartItem {
   final ProductModel product;
-  final List<dynamic> selectedOptions;
+  final List<SelectedModifier> selectedOptions;
   final double extraPrice;
   int quantity;
 
@@ -27,7 +28,7 @@ class CartItem {
 
   CartItem copyWith({
     ProductModel? product,
-    List<String>? selectedOptions,
+    List<SelectedModifier>? selectedOptions,
     double? extraPrice,
     int? quantity,
   }) {

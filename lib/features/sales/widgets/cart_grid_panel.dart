@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:new_alegria/features/sales/models/cart_item.dart';
+import 'package:new_alegria/features/sales/models/selected_product_modifier.dart';
 import 'package:new_alegria/features/sales/view_models/cart_state.dart';
 import 'package:new_alegria/features/sales/view_models/cart_view_model.dart';
 import 'package:new_alegria/features/sales/widgets/checkout_bar.dart';
@@ -141,18 +142,20 @@ class _CartItemTile extends StatelessWidget {
   final CartItem item;
   final CartViewModel cartVm;
 
-  String formatOptions(List options) {
+  String formatOptions(List<SelectedModifier> options) {
     return options
         .map((e) {
           final price = e.priceAdjustment;
 
+          String label = '${e.modifierName}: ${e.optionName}';
+
           if (price > 0) {
-            return '${e.name} (+₱${price.toStringAsFixed(2)})';
+            label += ' (+₱${price.toStringAsFixed(2)})';
           } else if (price < 0) {
-            return '${e.name} (-₱${price.abs().toStringAsFixed(2)})';
+            label += ' (-₱${price.abs().toStringAsFixed(2)})';
           }
 
-          return e.name;
+          return label;
         })
         .join(' • ');
   }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:new_alegria/features/sales/models/selected_product_modifier.dart';
 
 class ModifierDialog extends StatefulWidget {
   final dynamic product;
-  final Function(List<dynamic>, double) onConfirm;
+  final Function(List<SelectedModifier>, double) onConfirm;
 
   const ModifierDialog({
     super.key,
@@ -15,7 +16,7 @@ class ModifierDialog extends StatefulWidget {
 }
 
 class _ModifierDialogState extends State<ModifierDialog> {
-  final Map<String, dynamic> _selectedOptions = {};
+  final Map<String, SelectedModifier> _selectedOptions = {};
   double _extraPrice = 0;
 
   @override
@@ -120,17 +121,28 @@ class _ModifierDialogState extends State<ModifierDialog> {
             ),
             itemBuilder: (_, index) {
               final option = modifier.options[index];
-              final isSelected = _selectedOptions[modifier.id] == option;
+              final entry = _selectedOptions[modifier.id];
+              final isSelected = entry?.optionName == option.name;
 
               return InkWell(
                 borderRadius: BorderRadius.circular(10),
                 onTap: () {
                   setState(() {
-                    _selectedOptions[modifier.id] = option;
+                    final current = _selectedOptions[modifier.id];
+
+                    if (current?.optionName == option.name) {
+                      _selectedOptions.remove(modifier.id); // 👈 deselect
+                    } else {
+                      _selectedOptions[modifier.id] = SelectedModifier(
+                        modifierName: modifier.name,
+                        optionName: option.name,
+                        priceAdjustment: option.priceAdjustment.toDouble(),
+                      );
+                    }
 
                     _extraPrice = 0;
-                    for (var opt in _selectedOptions.values) {
-                      _extraPrice += opt.priceAdjustment;
+                    for (var entry in _selectedOptions.values) {
+                      _extraPrice += entry.priceAdjustment;
                     }
                   });
                 },
